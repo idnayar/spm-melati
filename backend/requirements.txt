@@ -36,8 +36,8 @@ google-auth-httplib2==0.4.3
 google-genai==2.25.0
 google-generativeai==0.8.6
 googleapis-common-protos==1.75.0
-grpcio
-grpcio-status
+grpcio==1.68.2
+grpcio-status==1.68.2
 h11==0.16.0
 hf-xet==1.6.0
 httpcore==1.0.9
@@ -78,7 +78,7 @@ platformdirs==4.12.2
 pluggy==1.6.0
 propcache==0.5.4
 proto-plus==1.28.2
-protobuf==5.29.6
+protobuf>=4.25.3,<6.0.0dev
 pyasn1==0.6.4
 pyasn1_modules==0.4.2
 pycodestyle==2.15.0
