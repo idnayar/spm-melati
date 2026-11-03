@@ -2,12 +2,15 @@ import os
 import json
 import re
 import logging
-from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
+from google import genai
+from google.genai import types
 from core import new_id, MONTHS
 from recap import build_dataset
 
 logger = logging.getLogger(__name__)
-AI_MODEL = ("gemini", "gemini-3-flash-preview")
+
+# Menggunakan model Gemini Flash yang cepat dan hemat kuota
+AI_MODEL = "gemini-2.5-flash"
 
 BASE_RULES = """Anda analis SPM dan program kesehatan Puskesmas. Gunakan Bahasa Indonesia.
 ISTILAH: data dapat berupa SPM (Standar Pelayanan Minimal) atau program puskesmas; masing-masing memiliki indikator. Gunakan istilah sesuai jenisnya.
@@ -19,50 +22,88 @@ ATURAN KETAT:
 - Jika data tidak cukup, kosongkan daftar atau tulis dugaan dengan jelas, jangan mengisi dengan informasi umum yang tidak ada di data.
 - Keluarkan HANYA JSON valid tanpa teks lain."""
 
-SWOT_REFS = ["Analisis SWOT (Albert S. Humphrey, Stanford Research Institute, 1960-an)",
-             "Matriks TOWS (Heinz Weihrich, 'The TOWS Matrix - A Tool for Situational Analysis', Long Range Planning, 1982)"]
-FISH_REFS = ["Diagram sebab-akibat/fishbone (Kaoru Ishikawa)",
-             "Teknik 5 Why (Sakichi Toyoda; dipopulerkan dalam Toyota Production System oleh Taiichi Ohno)"]
+SWOT_REFS = [
+    "Analisis SWOT (Albert S. Humphrey, Stanford Research Institute, 1960-an)",
+    "Matriks TOWS (Heinz Weihrich, 'The TOWS Matrix - A Tool for Situational Analysis', Long Range Planning, 1982)"
+]
+FISH_REFS = [
+    "Diagram sebab-akibat/fishbone (Kaoru Ishikawa)",
+    "Teknik 5 Why (Sakichi Toyoda; dipopulerkan dalam Toyota Production System oleh Taiichi Ohno)"
+]
+
+
+def _get_api_key():
+    return os.environ.get("GEMINI_API_KEY") or os.environ.get("EMERGENT_LLM_KEY")
 
 
 def ai_available():
-    return bool(os.environ.get("EMERGENT_LLM_KEY"))
+    return bool(_get_api_key())
 
 
 def _parse_json(text):
     text = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.M).strip()
     s, e = text.find("{"), text.rfind("}")
+    if s == -1 or e == -1:
+        raise ValueError(f"Output model tidak mengandung JSON yang valid: {text}")
     return json.loads(text[s:e + 1])
 
 
 async def ai_json(prompt):
-    chat = LlmChat(api_key=os.environ["EMERGENT_LLM_KEY"], session_id=new_id(),
-                   system_message=BASE_RULES).with_model(*AI_MODEL)
-    out = ""
-    async for ev in chat.stream_message(UserMessage(text=prompt)):
-        if isinstance(ev, TextDelta):
-            out += ev.content
-        elif isinstance(ev, StreamDone):
-            break
-    return _parse_json(out)
+    api_key = _get_api_key()
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY atau EMERGENT_LLM_KEY belum disetel di environment variable.")
+
+    client = genai.Client(api_key=api_key)
+
+    # Memaksa model merespons langsung dalam format JSON valid
+    response = client.models.generate_content(
+        model=AI_MODEL,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=BASE_RULES,
+            response_mime_type="application/json",
+            temperature=0.2,
+        ),
+    )
+    return _parse_json(response.text)
 
 
 def compact_context(ds, followups):
     progs = []
     for p in ds["programs"]:
         progs.append({
-            "nama": p["name"], "jenis": "SPM" if p.get("kind") == "spm" else "Program", "pj": p.get("pj_name"),
-            "indikator": [{"nama": i["name"], "satuan": i.get("unit"), "metode": i.get("method"),
-                           "sasaran": i["recap"]["sasaran"], "target_persen_periode": i["recap"]["target_periode"],
-                           "capaian": i["recap"]["capaian"], "persen_capaian": i["recap"]["persen"],
-                           "status": i["recap"]["status"],
-                           "bulan_terlapor": [MONTHS[m - 1] for m in i["recap"]["bulan_terlapor"]]}
-                          for i in p["indicators"]],
-            "narasi_laporan": p["narasi"]})
-    return json.dumps({"periode": ds["periode"], "program": progs,
-                       "tindak_lanjut": [{"judul": f["title"], "status": f["status"], "tenggat": f.get("deadline"),
-                                          "hasil": f.get("result", "")} for f in followups]},
-                      ensure_ascii=False, default=str)
+            "nama": p["name"],
+            "jenis": "SPM" if p.get("kind") == "spm" else "Program",
+            "pj": p.get("pj_name"),
+            "indikator": [
+                {
+                    "nama": i["name"],
+                    "satuan": i.get("unit"),
+                    "metode": i.get("method"),
+                    "sasaran": i["recap"]["sasaran"],
+                    "target_persen_periode": i["recap"]["target_periode"],
+                    "capaian": i["recap"]["capaian"],
+                    "persen_capaian": i["recap"]["persen"],
+                    "status": i["recap"]["status"],
+                    "bulan_terlapor": [MONTHS[m - 1] for m in i["recap"]["bulan_terlapor"]]
+                }
+                for i in p["indicators"]
+            ],
+            "narasi_laporan": p["narasi"]
+        })
+    return json.dumps({
+        "periode": ds["periode"],
+        "program": progs,
+        "tindak_lanjut": [
+            {
+                "judul": f["title"],
+                "status": f["status"],
+                "tenggat": f.get("deadline"),
+                "hasil": f.get("result", "")
+            }
+            for f in followups
+        ]
+    }, ensure_ascii=False, default=str)
 
 
 def has_data(ds):
