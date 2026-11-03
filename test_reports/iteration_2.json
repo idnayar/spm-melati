@@ -1,0 +1,31 @@
+{
+  "summary": "Iteration 2 testing of PJ-scoping + program profile + draft-aware presentations. Backend: 22/22 new pytest tests pass (file: /app/backend/tests/test_iteration2.py). Covers Dashboard scoping (PJ sees only own KIA program, 403 for other program_id, admin/kepala still see all 4), Export scoping (PJ collective = own only, PJ requesting other program_id -> 403, PJ own program ok), Presentations (PJ generate own with include_draft=true -> 200 and title subtitle contains 'Memuat data draf' since July 2026 KIA report is a draft; PJ generate other program -> 403; PJ list only own; PJ export pptx/pdf -> 200; cleanup done), Program profile PJ (edit labels+profile fields on own program, pj_user_id locked to self even when request body tries to reassign, edit/delete other program -> 403, add indicator to other -> 403, create new program auto-assigns self as PJ, add/edit/delete indicators on own, delete own program), Regression (admin can edit any program incl. kepala-managed, kepala PUT /programs -> 403). Frontend (PJ KIA, kepala, admin): Program page title 'Profil Program Saya' for PJ, only 1 program card shown, add-label chip persists after save and renders as chip on card, add-profile-field + save works, cleanup works. ReportEditor includes report-make-presentation-button (data-testid present in code). Presentations page generate dialog shows include-draft-switch. Kepala /program page shows all 4 programs with 0 edit buttons and 0 add buttons (read-only confirmed). PJ dashboard trend chart shows only KIA line and KPI shows 3 indicators = KIA's count.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration2.py",
+    "/app/test_reports/pytest/iter2_results.xml",
+    "/app/backend/tests/backend_test.py"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py now 1004 lines - still growing; consider splitting routers (previous iteration already flagged).",
+    "scope_programs() runs an extra DB query on every dashboard/export call even for admin/kepala - minor perf cost (early-returns for non-PJ so OK).",
+    "clean_program() silently overrides pj_user_id when PJ edits (keeping current or self). Good behaviour; UI should hide the PJ field for PJ role to avoid confusion (not verified in UI).",
+    "GET /presentations hides slides field - good; but GET /presentations/{pid} returns full doc with no scoping check (any authenticated user can fetch any presentation by id). Consider adding PJ-only scope on detail endpoint for consistency with list.",
+    "DELETE /presentations/{pid} is open to any authenticated user including PJ for any presentation (no owner/program check). Low risk but inconsistent with new scoping."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration2.py (new - 22 tests, 11.6s with xdist)"
+  ],
+  "success_rate": {"backend": "100% (22/22 new + 41/41 regression)", "frontend": "100% (critical new flows verified)"},
+  "test_credentials": "Used credentials from /app/memory/test_credentials.md as-is (admin, kepala, pj.kia, pj.gizi). All logins succeeded.",
+  "seed_data_creation": "No permanent test data left. UI test added 'TEST_UI_label' chip and TEST_UI_PIC profile row then removed them. Backend tests created+deleted TEST_PJ_Program. Pres generation created+deleted a draft-aware KIA July 2026 presentation.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Both regression suites green: /app/backend/tests/backend_test.py (41) + /app/backend/tests/test_iteration2.py (22). Run with `pytest /app/backend/tests/ -v --tb=short`. PJ KIA = pj.kia@puskesmas-melati.test/Pj@2026, programs {KIA, Gizi, Imunisasi, P2P Tuberkulosis}. Only data touched: July 2026 KIA is still a draft (used to prove 'Memuat data draf' subtitle). Potential small enhancement: scope GET/DELETE presentations by program for PJ (noted in code-review)."
+}

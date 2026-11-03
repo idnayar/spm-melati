@@ -1,0 +1,84 @@
+{
+  "project_name": "MELATI PROGRAM HUB",
+  "app_type": "dashboard / saas_app",
+  "archetype": "ORGANIC & EARTHY / TRUST & HEALTH (Puskesmas Focus)",
+  "language": "Bahasa Indonesia",
+  "logo": {
+    "url": "https://customer-assets-wrfwihn1.emergentagent.net/job_b6eb9c1b-9427-4446-919a-a40ae3f34c4e/artifacts/vpiyduuf_Logo%20modern%20Melati%20Program%20Hub.png",
+    "description": "Dark forest green jasmine flower with bar chart icon and MELATI PROGRAM HUB typography"
+  },
+  "typography": {
+    "heading_font": "Outfit, Plus Jakarta Sans, sans-serif",
+    "body_font": "Inter, Plus Jakarta Sans, sans-serif",
+    "mono_font": "JetBrains Mono, monospace",
+    "hierarchy": {
+      "h1": "text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-emerald-950 dark:text-emerald-50",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight text-emerald-900 dark:text-emerald-100",
+      "h3": "text-xl sm:text-2xl font-semibold text-emerald-900 dark:text-emerald-200",
+      "h4": "text-lg font-medium text-emerald-800 dark:text-emerald-300",
+      "body": "text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300",
+      "caption": "text-xs uppercase tracking-wider font-semibold text-emerald-700 dark:text-emerald-400"
+    }
+  },
+  "colors": {
+    "theme": "Professional Green (Nuansa Hijau Melati)",
+    "primary": {
+      "forest_dark": "#1A4D3A",
+      "emerald": "#0F5A47",
+      "mint_accent": "#10B981",
+      "light_sage": "#E8F5E9",
+      "bone_bg": "#F8FAF7"
+    },
+    "roles": {
+      "admin": "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200",
+      "pj_program": "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200",
+      "kepala_puskesmas": "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200"
+    },
+    "report_status": {
+      "draft": "bg-slate-100 text-slate-700 border-slate-300",
+      "submitted": "bg-blue-100 text-blue-800 border-blue-300",
+      "needs_revision": "bg-amber-100 text-amber-800 border-amber-300",
+      "approved": "bg-emerald-100 text-emerald-800 border-emerald-300"
+    },
+    "unreported_data": {
+      "text": "Belum tersedia",
+      "style": "italic text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900/50 px-2 py-0.5 rounded text-xs border border-dashed border-slate-300 dark:border-slate-800"
+    },
+    "forbidden_colors": ["#1B93A4", "#7351B7"]
+  },
+  "layout_and_navigation": {
+    "shell": "Collapsible Sidebar + Fixed Header Topbar with user role switcher & notification center",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+  },
+  "key_features_ui_spec": {
+    "dashboard_kpi": "Monthly/Quarterly/Annual filter bar, target vs achievement cards, recharts trend graphs, program completeness gauge, late submission badges.",
+    "pj_report_flow": "Step-by-step reporting builder with draft save, submission dialog, revision request notes from Kepala Puskesmas, and approval stamp.",
+    "flexible_tables": "Dynamic indicator table, excel import (.xlsx/.csv parser preview modal), excel template download button.",
+    "swot_tows_matrix": "Interactive 2x2 grid (Kekuatan, Kelemahan, Peluang, Ancaman) with strategy synthesis cards.",
+    "fishbone_5whys": "Visual fishbone diagram (Man, Method, Material, Machine, Environment, Measurement) coupled with 5-Why root cause analysis cards featuring 'Fakta vs Dugaan' validation check.",
+    "slide_presentation": "Per-program automated slide deck viewer with inline slide edit mode, slide transition, and full-screen presentation mode.",
+    "export_suite": "Export menu dropdown with options for Word (.docx), Excel (.xlsx), PDF, and PPTX.",
+    "followup_monitoring": "Kanban board & list view for action items (Tindak Lanjut) with priority tags, pic, deadline, and status.",
+    "revision_history_log": "Timeline component showing audit trail, version changes, and timestamped actions."
+  },
+  "testing_attributes": {
+    "rule": "MUST include data-testid on every interactive element, input, tab, button, card metric, modal trigger, and table row.",
+    "examples": [
+      "data-testid='sidebar-nav-dashboard'",
+      "data-testid='role-switcher-select'",
+      "data-testid='report-status-badge'",
+      "data-testid='unreported-data-placeholder'",
+      "data-testid='presentation-fullscreen-button'",
+      "data-testid='export-pdf-button'",
+      "data-testid='fishbone-add-cause-button'"
+    ]
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Never use pure black or stark gray background; use warm tinted bone (#F8FAF7) in light mode and rich slate/emerald void in dark mode.",
+    "Consistently use Bahasa Indonesia terms: 'Puskesmas Melati', 'Penanggung Jawab (PJ)', 'Kepala Puskesmas', 'Capaian', 'Sasaran', 'Target', 'Tindak Lanjut', 'Belum tersedia'.",
+    "All interactive elements MUST feature data-testid attributes for E2E testing.",
+    "Headers and floating overlays MUST have semi-opaque backdrop blurs (backdrop-blur-md bg-white/80 dark:bg-slate-900/80), NEVER pure transparent.",
+    "Ensure responsiveness on mobile & desktop views with generous container padding (p-4 sm:p-6 lg:p-8)."
+  ]
+}

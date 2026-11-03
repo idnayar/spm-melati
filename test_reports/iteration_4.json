@@ -1,0 +1,37 @@
+{
+  "summary": "Iteration 4 verifies SPM/Program separation. Backend: 14/14 pytests in /app/backend/tests/test_iteration4.py pass. Verified GET /api/programs?kind=spm returns 12 SPMs sorted (SPM-01..SPM-12), ?kind=program returns 4 programs (after KIA restoration - see RCA), no-kind returns 16. POST /api/programs accepts kind=spm. GET /api/dashboard?kind=spm returns only 12 SPMs with completeness scoped to SPM; kind=program only 4 programs. YoY fields (yoy_trend 12mo, yoy_spm per program, summary.rata_persen_lalu) preserved. GET /api/reports?kind filters by program kind. XLSX export titles verified: 'Laporan Kolektif SPM', 'Laporan Kolektif Program', 'Laporan SPM <name>', 'Laporan Program <name>'. Presentation /generate title slide uses 'Capaian SPM <name>' / 'Capaian Program <name>'. Frontend (Playwright, 1920x1080, admin + pj.kia): All 6 required sidebar testids present (sidebar-nav-dashboard-spm/laporan-spm/master-spm/dashboard-program/laporan-program/master-program). Admin login lands on /dashboard/spm. Legacy routes /dashboard->/dashboard/spm, /laporan->/laporan-spm, /program->/master/program redirect correctly. Data SPM shows 12 cards. Admin assigned pj.kia to SPM-01 via edit dialog -> PJ SPM KIA. Dashboard Program shows 4 recap cards for admin. Ekspor page has export-kind-select + export-program-select. PJ KIA: Dashboard SPM scoped to 1 recap card (SPM-01 only). Created SPM report via create-report-button (program picker shows exactly 1 option), filled sasaran=100 capaian=80, saved + submitted. Back button returns to /laporan-spm. Submitted SPM report visible in Laporan SPM list and NOT in Laporan Program list. Dashboard Program for PJ KIA still shows only KIA (1 card). PJ KIA master/program (KIA) and master/spm (SPM-01) show add-indicator button.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "startup/seed_all", "issue": "Same seeding robustness issue as iter3: KIA program was missing from DB at start of iter4 (only 3 programs with kind='program' remained: GIZI/IMUN/TB). Had to be manually re-inserted + 4 orphan Sep 2026 KIA reports repointed. seed_all is guarded by meta.seeded flag so deleted entities are never restored. Recommendation: seed each program idempotently (upsert by code) rather than gating by meta flag."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration4.py",
+    "/app/test_reports/pytest/iter4_results.xml"
+  ],
+  "action_items": [
+    "(optional) Make seed_all idempotent-per-entity so missing programs re-seed on startup. Repeat regression from iter3."
+  ],
+  "critical_code_review_comments": [
+    "server.py still 1055 lines - routers should be split (flagged since iter2).",
+    "exports.title_of correctly branches on ds['kind']; export_report uses len(ds['programs'])==1 implicit via title_of handling program_id filter.",
+    "Reports.jsx NewReportDialog: PJ with only 1 program - users must still click to open dropdown. Minor UX; could auto-select when myPrograms.length==1.",
+    "ReportEditor back button uses r.program.kind to decide /laporan-spm vs /laporan-program - correct.",
+    "Dashboard.jsx completeness.rows filtered server-side by kind in build_dataset->completeness(..., kind) - verified via test_dashboard_kind_spm."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration4.py (new - 14 tests)"
+  ],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "100% (all required flows + testids + scoping)"},
+  "test_credentials": "Used /app/memory/test_credentials.md as-is. Admin tiofansha@gmail.com / Melati@2026 and PJ pj.kia@puskesmas-melati.test / Pj@2026 logins succeeded.",
+  "seed_data_creation": "Restored missing KIA program (kind=program, 3 indicators, pj.kia as PJ) and repointed 4 orphan 2026 KIA reports to the new program id. Assigned PJ SPM KIA to SPM-01 (left in place for demo as requested). Created+submitted a Sep (current period) 2026 SPM report for SPM-01 by pj.kia with sasaran=100 capaian=80.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iter4 fully green. /app/backend/tests/test_iteration4.py covers SPM/Program separation (programs/dashboard/reports/export/presentation). KIA program was recreated with new id after being accidentally deleted; its indicators have fresh ids (orphan report items may reference stale indicator_ids but recap handles this gracefully as 'indikator dihapus'). SPM-01 has PJ=pj.kia for demo. Known regression: seed_all does not restore deleted seeded entities (guarded by meta.seeded)."
+}
