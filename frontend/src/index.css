@@ -1,0 +1,65 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #F8FAF7;
+    color: #1f2937;
+}
+::selection { background: #CDE7D4; color: #12372A; }
+
+@layer base {
+    :root {
+        --background: 100 20% 98%;
+        --foreground: 160 30% 12%;
+        --card: 0 0% 100%;
+        --card-foreground: 160 30% 12%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 160 30% 12%;
+        --primary: 157 50% 20%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 120 20% 94%;
+        --secondary-foreground: 157 50% 20%;
+        --muted: 120 15% 95%;
+        --muted-foreground: 160 8% 40%;
+        --accent: 130 25% 92%;
+        --accent-foreground: 157 50% 20%;
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 140 18% 88%;
+        --input: 140 18% 85%;
+        --ring: 157 50% 30%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * { @apply border-border; }
+    body { @apply bg-background text-foreground; }
+}
+
+@layer components {
+    .font-display { font-family: "Outfit", sans-serif; }
+    .font-mono-num { font-family: "JetBrains Mono", monospace; font-size: 0.92em; }
+    .na-badge { @apply inline-block whitespace-nowrap rounded border border-dashed border-slate-300 bg-slate-50 px-2 py-0.5 text-xs italic text-slate-400; }
+    .btn-primary { @apply bg-[#1A4D3A] text-white hover:bg-[#123828] transition-colors duration-200; }
+    .btn-soft { @apply border border-[#CFE0D4] bg-white text-[#1A4D3A] hover:bg-[#EEF4EF] transition-colors duration-200; }
+    .animate-rise { animation: rise 0.5s cubic-bezier(.2,.7,.2,1) both; }
+    .stagger > * { animation: rise 0.55s cubic-bezier(.2,.7,.2,1) both; }
+    .stagger > *:nth-child(2) { animation-delay: 60ms; }
+    .stagger > *:nth-child(3) { animation-delay: 120ms; }
+    .stagger > *:nth-child(4) { animation-delay: 180ms; }
+    .stagger > *:nth-child(5) { animation-delay: 240ms; }
+    .stagger > *:nth-child(6) { animation-delay: 300ms; }
+    .grain { background-image: radial-gradient(rgba(26,77,58,0.06) 1px, transparent 1px); background-size: 14px 14px; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.slide-stage:fullscreen { background: #0d241b; display: flex; align-items: center; justify-content: center; padding: 2vw; }
+.slide-stage:fullscreen .slide-frame { width: min(96vw, calc(96vh * 16 / 9)); }
+
+[data-debug-wrapper="true"] { display: contents !important; }
