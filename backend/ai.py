@@ -10,7 +10,7 @@ from recap import build_dataset
 logger = logging.getLogger(__name__)
 
 # Menggunakan model Gemini Flash yang cepat dan hemat kuota
-AI_MODEL = "gemini-2.5-flash"
+AI_MODEL = "gemini-3.8-flash"
 
 BASE_RULES = """Anda analis SPM dan program kesehatan Puskesmas. Gunakan Bahasa Indonesia.
 ISTILAH: data dapat berupa SPM (Standar Pelayanan Minimal) atau program puskesmas; masing-masing memiliki indikator. Gunakan istilah sesuai jenisnya.
